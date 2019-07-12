@@ -22,7 +22,7 @@ module.exports = {
         });
     });
 
-    res.status(201).json(product);
+    res.status(201).json({ success: true });
   },
 
   getProduct: async (req, res, next) => {
@@ -35,21 +35,45 @@ module.exports = {
   replaceProduct: async (req, res, next) => {
     const { productId } = req.params;
     const newProduct = req.body;
-    const product = await Category.findByIdAndUpdate(productId, newProduct, {
+    await Product.findByIdAndUpdate(productId, newProduct, {
       useFindAndModify: false
     });
 
-    res.status(200).json(newProduct);
+    const product = await Product.findById(productId);
+    const productCategories = product.categories;
+
+    productCategories.forEach(element => {
+      Category.findById(element)
+        .exec()
+        .then(category => {
+          category.products.push(productId);
+          category.save();
+        });
+    });
+
+    res.status(200).json({ success: true });
   },
 
   updateProduct: async (req, res, next) => {
     const { productId } = req.params;
     const newProduct = req.body;
-    const product = await Category.findByIdAndUpdate(productId, newProduct, {
+    await Product.findByIdAndUpdate(productId, newProduct, {
       useFindAndModify: false
     });
 
-    res.status(200).json(newProduct);
+    const product = await Product.findById(productId);
+    const productCategories = product.categories;
+
+    productCategories.forEach(element => {
+      Category.findById(element)
+        .exec()
+        .then(category => {
+          category.products.push(productId);
+          category.save();
+        });
+    });
+
+    res.status(200).json({ success: true });
   },
 
   deleteProduct: async (req, res, next) => {
@@ -57,14 +81,15 @@ module.exports = {
     const product = await Product.findById(productId);
     const productCategories = product.categories;
 
-    productCategories.forEach(productCategory => {
-      const category = Category.findById(productCategory);
-      let categoryProductList = category.products;
-      categoryProductList = categoryProductList.filter(id => {
-        return id != productId;
-      });
-      category.products.push(categoryProductList);
-      category.save();
+    productCategories.forEach(element => {
+      Category.findById(element)
+        .exec()
+        .then(category => {
+          category.products.filter(id => {
+            return id != productId;
+          });
+          category.save();
+        });
     });
 
     await Product.findByIdAndDelete(productId);
@@ -76,7 +101,7 @@ module.exports = {
     const { productId } = req.params;
     const product = await Product.findById(productId).populate("categories");
 
-    res.status(200).json(product);
+    res.status(200).json(product.categories);
   },
 
   addProductCategories: async (req, res, next) => {
@@ -90,69 +115,72 @@ module.exports = {
     product.categories.push(newCategory._id);
     await product.save();
 
-    res.status(200).json({
-      product: product,
-      category: newCategory
-    });
+    res.status(200).json({ success: true });
   },
 
   updateProductCategories: async (req, res, next) => {
     const { productId } = req.params;
-    const product = await Product.findById(productId);
     const categoryList = req.body.categories;
-    categoryList.forEach(element => {
-      product.categories.push(element);
-    });
+    await Product.findById(productId)
+      .exec()
+      .then(product => {
+        categoryList.forEach(element => {
+          product.categories.push(element);
+        });
+      });
+
     await product.save();
 
-    res.status(200).json({
-      product: product
-    });
+    res.status(200).json({ success: true });
   },
 
   unlinkProductCategory: async (req, res, next) => {
     const { productId, categoryId } = req.params;
-    const product = await Product.findById(productId);
-    let productCategoryList = product.categories;
+    await Product.findById(productId)
+      .exec()
+      .then(product => {
+        let productCategoryList = product.categories;
+        productCategoryList = productCategoryList.filter(id => {
+          return id != categoryId;
+        });
+        product.categories = productCategoryList;
+        product.save();
+      });
 
-    productCategoryList = productCategoryList.filter(id => {
-      return id != categoryId;
-    });
-    product.categories = productCategoryList;
-    await product.save();
+    await Category.findById(categoryId)
+      .exec()
+      .then(category => {
+        let categoryProductList = category.products;
+        categoryProductList = categoryProductList.filter(id => {
+          return id != productId;
+        });
+        category.products = categoryProductList;
+        category.save();
+      });
 
-    const category = await Category.findById(categoryId);
-    let categoryProductList = category.products;
-    categoryProductList = categoryProductList.filter(id => {
-      return id != productId;
-    });
-
-    category.products = categoryProductList;
-    await category.save();
-
-    res.status(200).json({
-      product: product,
-      category: category
-    });
+    res.status(200).json({ success: true });
   },
 
   linkProductCategory: async (req, res, next) => {
     const { productId, categoryId } = req.params;
-    const product = await Product.findById(productId);
-    let productCategoryList = product.categories;
-    productCategoryList = productCategoryList.push(categoryId);
-    product.categories = productCategoryList;
-    await product.save();
+    await Product.findById(productId)
+      .exec()
+      .then(product => {
+        let productCategoryList = product.categories;
+        productCategoryList = productCategoryList.push(categoryId);
+        product.categories = productCategoryList;
+        product.save();
+      });
 
-    const category = await Category.findById(categoryId);
-    let categoryProducts = category.products;
-    categoryProductList = categoryProducts.push(categoryId);
-    category.products = categoryProductList;
-    await category.save();
+    await Category.findById(categoryId)
+      .exec()
+      .then(category => {
+        let categoryProducts = category.products;
+        categoryProductList = categoryProducts.push(categoryId);
+        category.products = categoryProductList;
+        category.save();
+      });
 
-    res.status(200).json({
-      product: product,
-      category: category
-    });
+    res.status(200).json({ success: true });
   }
 };

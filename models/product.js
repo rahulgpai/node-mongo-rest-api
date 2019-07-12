@@ -13,8 +13,7 @@ const productSchema = new Schema({
   categories: [
     {
       type: Schema.Types.ObjectId,
-      ref: "category",
-      required: true
+      ref: "category"
     }
   ],
   price: {

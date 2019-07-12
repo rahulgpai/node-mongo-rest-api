@@ -5,25 +5,29 @@ const router = require("express-promise-router")(); // use the express-promise-r
 const ProductsController = require("../controllers/products");
 
 router
-  .route("/")
+  .route("/products")
   .get(ProductsController.index)
   .post(ProductsController.newProduct);
 
 router
-  .route("/:productId")
+  .route("/products/:productId")
   .get(ProductsController.getProduct)
   .put(ProductsController.replaceProduct)
   .patch(ProductsController.updateProduct)
   .delete(ProductsController.deleteProduct);
 
 router
-  .route("/:productId/categories")
+  .route("/products-category/:productId")
   .get(ProductsController.getProductCategories)
   .post(ProductsController.addProductCategories)
   .put(ProductsController.updateProductCategories);
 
 router
-  .route("/:productId/categories/:categoryId")
+  .route("/d/products-category/:productId/:categoryId")
   .delete(ProductsController.unlinkProductCategory);
+
+router
+  .route("/u/products-category/:productId/:categoryId")
+  .get(ProductsController.linkProductCategory);
 
 module.exports = router;

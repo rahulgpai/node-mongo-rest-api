@@ -22,7 +22,7 @@ module.exports = {
         });
     });
 
-    res.status(201).json(category);
+    res.status(201).json({ success: true });
   },
 
   getCategory: async (req, res, next) => {
@@ -37,7 +37,7 @@ module.exports = {
   replaceCategory: async (req, res, next) => {
     const { categoryId } = req.params;
     const newCategory = req.body;
-    const category = await Category.findByIdAndUpdate(categoryId, newCategory, {
+    await Category.findByIdAndUpdate(categoryId, newCategory, {
       useFindAndModify: false
     });
 
@@ -59,14 +59,15 @@ module.exports = {
     const category = await Category.findById(categoryId);
     const categoryProducts = category.products;
 
-    categoryProducts.forEach(categoryProduct => {
-      const product = Product.findById(categoryProduct);
-      let productCategories = product.categories;
-      productCategories = productCategories.filter(id => {
-        return id != categoryId;
-      });
-      product.categories.push(productCategories);
-      product.save();
+    categoryProducts.forEach(element => {
+      Product.findById(element)
+        .exec()
+        .then(product => {
+          product.categories.filter(id => {
+            return id != categoryId;
+          });
+          product.save();
+        });
     });
 
     await Category.findByIdAndDelete(categoryId);
@@ -78,7 +79,7 @@ module.exports = {
     const { categoryId } = req.params;
     const category = await Category.findById(categoryId).populate("products");
 
-    res.status(200).json(category);
+    res.status(200).json(category.products);
   },
 
   addCategoryProduct: async (req, res, next) => {
@@ -92,10 +93,7 @@ module.exports = {
     category.products.push(newProduct._id);
     await category.save();
 
-    res.status(200).json({
-      product: newProduct,
-      category: category
-    });
+    res.status(200).json({ success: true });
   },
 
   updateCategoryProducts: async (req, res, next) => {
@@ -107,9 +105,7 @@ module.exports = {
     });
     await category.save();
 
-    res.status(200).json({
-      category: category
-    });
+    res.status(200).json({ success: true });
   },
 
   unlinkCategoryProduct: async (req, res, next) => {
@@ -131,16 +127,11 @@ module.exports = {
     product.categories = productCategoryList;
     await product.save();
 
-    res.status(200).json({
-      product: product,
-      category: category
-    });
+    res.status(200).json({ success: true });
   },
 
   linkCategoryProduct: async (req, res, next) => {
     const { categoryId, productId } = req.params;
-
-    // Get category
     const category = await Category.findById(categoryId);
     let categoryProductList = category.products;
     categoryProductList = categoryProductList.push(productId);
@@ -153,9 +144,6 @@ module.exports = {
     product.categories = productCategoryList;
     await product.save();
 
-    res.status(200).json({
-      product: product,
-      category: category
-    });
+    res.status(200).json({ success: true });
   }
 };
