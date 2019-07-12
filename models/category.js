@@ -3,14 +3,17 @@ const Schema = mongoose.Schema;
 
 const categorySchema = new Schema({
   name: {
-    type: String
+    type: String,
+    required: true
   },
   description: {
-    type: String
+    type: String,
+    required: true
   },
   parent: {
     type: Schema.Types.ObjectId,
-    ref: "category"
+    ref: "category",
+    default: null
   },
   child_categories: [
     {
@@ -23,7 +26,11 @@ const categorySchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "product"
     }
-  ]
+  ],
+  is_active: {
+    type: Boolean,
+    default: true
+  }
 });
 
 const Category = mongoose.model("category", categorySchema);

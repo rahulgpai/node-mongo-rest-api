@@ -15,8 +15,8 @@ app.use(logger("dev"));
 app.use(bodyParser.json());
 
 // Routes
-app.use("/api/categories/", categories);
-app.use("/api/products/", products);
+app.use("/api/", categories);
+app.use("/api/", products);
 
 // Catch 404 errors and forward them to error handler function
 app.use((req, res, next) => {

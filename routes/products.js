@@ -22,4 +22,8 @@ router
   .post(ProductsController.addProductCategories)
   .put(ProductsController.updateProductCategories);
 
+router
+  .route("/:productId/categories/:categoryId")
+  .delete(ProductsController.unlinkProductCategory);
+
 module.exports = router;
