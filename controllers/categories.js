@@ -13,7 +13,7 @@ module.exports = {
     const category = await newCategory.save();
     const categoryProducts = category.products;
 
-    categoryProducts.forEach(element => {
+    await categoryProducts.forEach(element => {
       Product.findById(element)
         .exec()
         .then(product => {
@@ -59,7 +59,7 @@ module.exports = {
     const category = await Category.findById(categoryId);
     const categoryProducts = category.products;
 
-    categoryProducts.forEach(element => {
+    await categoryProducts.forEach(element => {
       Product.findById(element)
         .exec()
         .then(product => {
@@ -100,7 +100,7 @@ module.exports = {
     const { categoryId } = req.params;
     const category = await Category.findById(categoryId);
     const productList = req.body.products;
-    productList.forEach(element => {
+    await productList.forEach(element => {
       category.products.push(element);
     });
     await category.save();
@@ -113,7 +113,7 @@ module.exports = {
 
     const category = await Category.findById(categoryId);
     let categoryProductList = category.products;
-    categoryProductList = categoryProductList.filter(id => {
+    categoryProductList = await categoryProductList.filter(id => {
       return id != productId;
     });
     category.products = categoryProductList;
@@ -121,7 +121,7 @@ module.exports = {
 
     const product = await Product.findById(productId);
     let productCategoryList = product.categories;
-    productCategoryList = productCategoryList.filter(id => {
+    productCategoryList = await productCategoryList.filter(id => {
       return id != categoryId;
     });
     product.categories = productCategoryList;

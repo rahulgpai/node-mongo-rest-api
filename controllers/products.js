@@ -13,7 +13,7 @@ module.exports = {
     const product = await newProduct.save();
     const productCategories = product.categories;
 
-    productCategories.forEach(element => {
+    await productCategories.forEach(element => {
       Category.findById(element)
         .exec()
         .then(category => {
@@ -42,7 +42,7 @@ module.exports = {
     const product = await Product.findById(productId);
     const productCategories = product.categories;
 
-    productCategories.forEach(element => {
+    await productCategories.forEach(element => {
       Category.findById(element)
         .exec()
         .then(category => {
@@ -64,7 +64,7 @@ module.exports = {
     const product = await Product.findById(productId);
     const productCategories = product.categories;
 
-    productCategories.forEach(element => {
+    await productCategories.forEach(element => {
       Category.findById(element)
         .exec()
         .then(category => {
@@ -81,7 +81,7 @@ module.exports = {
     const product = await Product.findById(productId);
     const productCategories = product.categories;
 
-    productCategories.forEach(element => {
+    await productCategories.forEach(element => {
       Category.findById(element)
         .exec()
         .then(category => {
